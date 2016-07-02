@@ -23,7 +23,15 @@ app.get('/todos/:id', function(req, res) {
   var toDoId = parseInt(req.params.id, 10);
   var result = _.findWhere(todos, {id: toDoId});
   if (result) res.json(result);
-  res.status(404).send();	
+  else res.status(404).send();	
+});
+
+app.delete("/todos/:id", function(req, res) {
+  var toDoId = parseInt(req.params.id, 10);
+  var deleteTarget = _.findWhere(todos, {id: toDoId});
+  todos = _.without(todos, deleteTarget);
+  if (deleteTarget) res.json(todos);
+  else res.status(404).json({"error": "No to-do found with that id."});
 });
 
 //By convention, creating an item in REST uses the same
