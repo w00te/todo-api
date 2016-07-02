@@ -1,23 +1,13 @@
 var express = require("express");
 var app = express();
+var bodyParser = require("body-parser");
 
 var port = process.env.PORT || 3000;
 
-var todos = [{
-  id: 1,
-  description: "Meet Augusta for lunch.",
-  completed: false
-}
-,{
-	id: 2,
-	description: "Go to market.",
-	complete: false
-}
-,{
-	id: 3,
-	description: "Go to work.",
-	complete: true
-}];
+var todos = [];
+var todoNextId = 1;
+
+app.use(bodyParser.json());
 
 app.get("/", function(req, res) {
   res.send("TO-DO API Root");
@@ -36,6 +26,16 @@ app.get('/todos/:id', function(req, res) {
   	}
   }
   res.status(404).send();	
+});
+
+//By convention, creating an item in REST uses the same
+//URL as the get-all URL, except that it is a post.
+app.post('/todos', function(req, res) {
+  var body = req.body;
+  body["id"] = todoNextId++;
+  todos.push(body);
+  console.log(todos);
+  res.json(body);
 });
 
 app.listen(port, function() {
