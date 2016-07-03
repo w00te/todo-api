@@ -34,6 +34,35 @@ app.delete("/todos/:id", function(req, res) {
   else res.status(404).json({"error": "No to-do found with that id."});
 });
 
+app.put("/todos/:id", function(req, res) {
+
+  var toDoId = parseInt(req.params.id, 10);
+  var updateTarget = _.findWhere(todos, {id: toDoId});
+
+  if (!updateTarget) return res.status(400).send();
+
+  var body = _.pick(req.body, "description", "completed");
+  var validAttributes = {};
+
+  if (body.hasOwnProperty("completed") && _.isBoolean(body.completed)) {
+  	validAttributes.completed = body.completed;
+  }
+  else if (body.hasOwnProperty("completed")) {
+  	return res.status(400).send({"error" : "Completed was invalid."});
+  }
+  
+  if (body.hasOwnProperty("description") && _.isString(body.description) && body.description.trim().length > 0) {
+  	console.log("Setting description...");
+  	validAttributes.description = body.description.trim();
+  }
+  else if (body.hasOwnProperty("description")) {
+  	return res.status(400).send({"error" : "Description was invalid."});
+  }
+
+  updateTarget = _.extend(updateTarget, validAttributes);
+  res.json(updateTarget);
+});
+
 //By convention, creating an item in REST uses the same
 //URL as the get-all URL, except that it is a post.
 app.post('/todos', function(req, res) {
