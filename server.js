@@ -22,7 +22,7 @@ app.get('/todos', function(request, res) {
   }
   if (q.hasOwnProperty("description") && q.description.trim().length > 0) {
     filteredTodos = _.filter(filteredTodos, function(val) {
-      return val.description.indexOf(q.description) > -1;
+      return val.description.toLowerCase().indexOf(q.description.toLowerCase()) > -1;
     });
   }
 
