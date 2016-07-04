@@ -14,8 +14,13 @@ app.get("/", function(req, res) {
   res.send("TO-DO API Root");
 });
 
-app.get('/todos', function(req, res) {
-  res.json(todos);
+app.get('/todos', function(request, res) {
+  var q = request.query;
+  var filteredTodos = todos;
+  if (q.hasOwnProperty("completed")) {
+  	filteredTodos = _.where(filteredTodos, {"completed" : q["completed"] == "true"});
+  }
+  res.json(filteredTodos);
 });
 
 //Refactored with underscore; finds single element where object matches.
@@ -52,7 +57,6 @@ app.put("/todos/:id", function(req, res) {
   }
   
   if (body.hasOwnProperty("description") && _.isString(body.description) && body.description.trim().length > 0) {
-  	console.log("Setting description...");
   	validAttributes.description = body.description.trim();
   }
   else if (body.hasOwnProperty("description")) {
