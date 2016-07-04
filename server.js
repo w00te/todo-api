@@ -20,6 +20,12 @@ app.get('/todos', function(request, res) {
   if (q.hasOwnProperty("completed")) {
   	filteredTodos = _.where(filteredTodos, {"completed" : q["completed"] == "true"});
   }
+  if (q.hasOwnProperty("description") && q.description.trim().length > 0) {
+    filteredTodos = _.filter(filteredTodos, function(val) {
+      return val.description.indexOf(q.description) > -1;
+    });
+  }
+
   res.json(filteredTodos);
 });
 
