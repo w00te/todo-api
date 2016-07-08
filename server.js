@@ -35,9 +35,13 @@ app.get('/todos', function(request, res) {
 //Refactored with underscore; finds single element where object matches.
 app.get('/todos/:id', function(req, res) {
   var toDoId = parseInt(req.params.id, 10);
-  var result = _.findWhere(todos, {id: toDoId});
-  if (result) res.json(result);
-  else res.status(404).send();	
+
+  db.todo.findById(toDoId).then(function(todo) {
+    if (!!todo) res.json(todo);
+    else res.status(404).json({ "error" : "No todo found."});
+  }, function(e) {
+  	res.status(500).json(e);
+  });
 });
 
 app.delete("/todos/:id", function(req, res) {
