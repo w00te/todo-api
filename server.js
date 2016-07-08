@@ -18,18 +18,23 @@ app.get("/", function(req, res) {
 });
 
 app.get('/todos', function(request, res) {
+
   var q = request.query;
-  var filteredTodos = todos;
+  var where = {};
+
   if (q.hasOwnProperty("completed")) {
-  	filteredTodos = _.where(filteredTodos, {"completed" : q["completed"] == "true"});
+    where.completed = q.completed == "true";
   }
+  
   if (q.hasOwnProperty("description") && q.description.trim().length > 0) {
-    filteredTodos = _.filter(filteredTodos, function(val) {
-      return val.description.toLowerCase().indexOf(q.description.toLowerCase()) > -1;
-    });
+    where.description = {$like: "%" + q.description.trim() + "%"};
   }
 
-  res.json(filteredTodos);
+  db.todo.findAll({where: where}).then(function(results) {
+    res.json(results);
+  }, function(e) {
+  	res.status(500).json({"error" : "Server error."});
+  });
 });
 
 //Refactored with underscore; finds single element where object matches.
