@@ -135,3 +135,33 @@ db.sequelize.sync().then(function() {
     console.log("Express listening on port " + port + "!")
   });
 });
+
+//---------------------------------------------------------------------
+// Authentication API.
+//---------------------------------------------------------------------
+
+//By convention, creating an item in REST uses the same
+//URL as the get-all URL, except that it is a post.
+app.post('/users', function(req, res) {
+
+  var body = _.pick(req.body, "email", "password");
+  if (!_.isString(body.email) || body.email.trim().length === 0 || !_.isString(body.password) || body.password.trim().length === 0) {
+    return res.status(400).send();
+  }
+
+  body.email = body.email.trim();
+  body.password = body.password.trim();
+
+  console
+
+  db.user.create({
+    email: body.email,
+    password: body.password
+  }).then(function(user) {
+    res.json(user);
+  }).catch(function(e) {
+    console.log(e);
+    return res.status(400).json(e);
+  });
+});
+
