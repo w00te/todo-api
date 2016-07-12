@@ -25,15 +25,21 @@ app.get('/todos', function(request, res) {
   if (q.hasOwnProperty("completed")) {
     where.completed = q.completed == "true";
   }
-  
+
   if (q.hasOwnProperty("description") && q.description.trim().length > 0) {
-    where.description = {$like: "%" + q.description.trim() + "%"};
+    where.description = {
+      $like: "%" + q.description.trim() + "%"
+    };
   }
 
-  db.todo.findAll({where: where}).then(function(results) {
+  db.todo.findAll({
+    where: where
+  }).then(function(results) {
     res.json(results);
   }, function(e) {
-  	res.status(500).json({"error" : "Server error."});
+    res.status(500).json({
+      "error": "Server error."
+    });
   });
 });
 
@@ -43,57 +49,72 @@ app.get('/todos/:id', function(req, res) {
 
   db.todo.findById(toDoId).then(function(todo) {
     if (!!todo) res.json(todo);
-    else res.status(404).json({ "error" : "No todo found."});
+    else res.status(404).json({
+      "error": "No todo found."
+    });
   }, function(e) {
-  	res.status(500).json(e);
+    res.status(500).json(e);
   });
 });
 
 app.delete("/todos/:id", function(req, res) {
   var toDoId = parseInt(req.params.id, 10);
-  var deleteTarget = _.findWhere(todos, {id: toDoId});
+  var deleteTarget = _.findWhere(todos, {
+    id: toDoId
+  });
   todos = _.without(todos, deleteTarget);
   if (deleteTarget) res.json(todos);
-  else res.status(404).json({"error": "No to-do found with that id."});
+  else res.status(404).json({
+    "error": "No to-do found with that id."
+  });
 });
 
 app.put("/todos/:id", function(req, res) {
 
   var toDoId = parseInt(req.params.id, 10);
-  var updateTarget = _.findWhere(todos, {id: toDoId});
-
-  if (!updateTarget) return res.status(400).send();
-
   var body = _.pick(req.body, "description", "completed");
   var validAttributes = {};
 
   if (body.hasOwnProperty("completed") && _.isBoolean(body.completed)) {
-  	validAttributes.completed = body.completed;
-  }
-  else if (body.hasOwnProperty("completed")) {
-  	return res.status(400).send({"error" : "Completed was invalid."});
-  }
-  
-  if (body.hasOwnProperty("description") && _.isString(body.description) && body.description.trim().length > 0) {
-  	validAttributes.description = body.description.trim();
-  }
-  else if (body.hasOwnProperty("description")) {
-  	return res.status(400).send({"error" : "Description was invalid."});
+    validAttributes.completed = body.completed;
+  } else if (body.hasOwnProperty("completed")) {
+    return res.status(400).send({
+      "error": "Completed was invalid."
+    });
   }
 
-  updateTarget = _.extend(updateTarget, validAttributes);
-  res.json(updateTarget);
+  if (body.hasOwnProperty("description") && _.isString(body.description) && body.description.trim().length > 0) {
+    validAttributes.description = body.description.trim();
+  } else if (body.hasOwnProperty("description")) {
+    return res.status(400).send({
+      "error": "Description was invalid."
+    });
+  }
+
+  db.todo.findById(toDoId).then(function(todo) {
+    if (todo) {
+      todo.update(validAttributes).then(function(todo) {
+        res.json(todo.toJSON());
+      }, function(e) {
+        res.status(400).send();
+      })
+    } else {
+      res.status(404).send();
+    }
+  }, function() {
+    res.status(500).send()
+  });
 });
 
 //By convention, creating an item in REST uses the same
 //URL as the get-all URL, except that it is a post.
 app.post('/todos', function(req, res) {
-  
+
   var body = _.pick(req.body, "description", "completed");
-  
+
   if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
-  	return res.status(400).send();
-  }  
+    return res.status(400).send();
+  }
 
   body.description = body.description.trim();
 
@@ -103,7 +124,7 @@ app.post('/todos', function(req, res) {
   }).then(function(todo) {
     res.json(todo);
   }).catch(function(e) {
-  	console.log(e);
+    console.log(e);
     return res.status(400).json(e);
   });
 });
