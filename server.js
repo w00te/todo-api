@@ -152,13 +152,11 @@ app.post('/users', function(req, res) {
   body.email = body.email.trim();
   body.password = body.password.trim();
 
-  console
-
   db.user.create({
     email: body.email,
     password: body.password
   }).then(function(user) {
-    res.json(user);
+    res.json(user.toPublicJSON());
   }).catch(function(e) {
     console.log(e);
     return res.status(400).json(e);
