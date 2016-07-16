@@ -131,7 +131,7 @@ app.post('/todos', function(req, res) {
 });
 
 //Sync creates the tables we defined if they do not already exist.
-db.sequelize.sync().then(function() {
+db.sequelize.sync({force : true}).then(function() {
   app.listen(port, function() {
     console.log("Express listening on port " + port + "!")
   });
